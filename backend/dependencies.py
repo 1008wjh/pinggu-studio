@@ -14,8 +14,8 @@ settings = get_settings()
 # ── 创建异步引擎（连接池）──
 engine = create_async_engine(
     settings.database_url,        # 来自 config.py，最终来自 .env.local
-    pool_size=10,                 # 连接池基础大小
-    max_overflow=20,              # 高峰时最多再额外开 20 个连接
+    pool_size=4,                  # 小规模部署保持连接池紧凑
+    max_overflow=4,
     echo=False,                   # True 会打印所有 SQL，调试时可临时打开
 )
 

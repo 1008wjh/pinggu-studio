@@ -1,0 +1,1 @@
+import{S as e}from"./StudioAgentPage-B96YG6Xh.js";import{d as t,q as o,o as r}from"./index-lOWBYEdl.js";import"./client-ixyjE2Kh.js";const m=t({__name:"StudioQAView",setup(a){return(i,n)=>(r(),o(e,{kind:"qa",title:"法律知识库问答",description:"基于法律法规、司法解释、合同模板和企业制度知识库回答问题。"}))}});export{m as default};

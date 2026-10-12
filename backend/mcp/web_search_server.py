@@ -6,7 +6,7 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP(
-    name="EduAgent-WebSearch",
+    name="Pinggu Studio-WebSearch",
     stateless_http=True,
     json_response=True,
 )

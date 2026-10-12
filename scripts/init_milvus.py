@@ -7,7 +7,7 @@ from backend.config import get_settings
 
 MILVUS_URI = f"http://{get_settings().milvus_host}:{get_settings().milvus_port}"
 VECTOR_DIM = 1024                  # BGE-M3 稠密向量维度
-COLLECTION_NAME = "knowledge_domain"  # 单集合，靠 tenant_id 区分租户
+COLLECTION_NAME = "knowledge_domain"  # 单集合，按 tenant_id + knowledge_base_id + partition 隔离
 
 
 def build_schema(client: MilvusClient):
@@ -18,6 +18,7 @@ def build_schema(client: MilvusClient):
     schema.add_field("sparse_embedding", DataType.SPARSE_FLOAT_VECTOR)              # 稀疏
     schema.add_field("content",          DataType.VARCHAR, max_length=4096)
     schema.add_field("tenant_id",        DataType.VARCHAR, max_length=64)           # 多租户隔离
+    schema.add_field("knowledge_base_id", DataType.VARCHAR, max_length=64)          # 知识库隔离（与 partition 双重约束）
     schema.add_field("chunk_index",      DataType.INT64)
     schema.add_field("document_id",      DataType.VARCHAR, max_length=64)
     schema.add_field("course_id",        DataType.VARCHAR, max_length=64)
@@ -39,16 +40,18 @@ def build_index_params(client: MilvusClient):
                  metric_type="IP", params={"drop_ratio_build": 0.2})
     # 标量字段：INVERTED 索引，加速 filter 过滤
     ip.add_index(field_name="tenant_id", index_type="INVERTED")
+    ip.add_index(field_name="knowledge_base_id", index_type="INVERTED")
     ip.add_index(field_name="course_id", index_type="INVERTED")
     return ip
 
 
 def main():
-    print(f"连接 Milvus：{MILVUS_URI}")
+    # Windows 默认 GBK 编码无法输出部分 Unicode 图标，使用 ASCII 日志保证脚本可执行。
+    print(f"Milvus URI: {MILVUS_URI}")
     client = MilvusClient(uri=MILVUS_URI)
 
     if client.has_collection(COLLECTION_NAME):
-        print(f"🗑️  删除旧集合 '{COLLECTION_NAME}'...")
+        print(f"Drop old collection: {COLLECTION_NAME}")
         client.drop_collection(COLLECTION_NAME)
 
     # create_collection 传 index_params 会一并建索引并加载
@@ -57,9 +60,9 @@ def main():
         schema=build_schema(client),
         index_params=build_index_params(client),
     )
-    print(f"✅ 集合 '{COLLECTION_NAME}' 创建完成（含索引，已加载）")
-    print("当前集合：", client.list_collections())
-    print("⚠️  集合已重建，原有数据已清空，请重新运行 build_knowledge_base.py 导入。")
+    print(f"Collection created: {COLLECTION_NAME} (indexed and loaded)")
+    print("Collections:", client.list_collections())
+    print("Collection was rebuilt; import source documents again if needed.")
 
 
 if __name__ == "__main__":

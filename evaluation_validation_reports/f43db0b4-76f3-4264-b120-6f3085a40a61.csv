@@ -1,0 +1,47 @@
+id,task_id,question,reference_answer,category,attachment_path,predicted_answer,judge_score,judge_reason,similarity,prompt_tokens,completion_tokens,total_tokens,usage_source,cache_hit,cache_saved_tokens,parse_ms,retrieval_ms,llm_ms,total_ms,cpu_percent,memory_percent,gpu_memory_mb,gpu_util_percent,telemetry_json,judge_ms,error,created_at
+1987a36a-57d9-43c2-a2dd-73d500fe9d4d,f43db0b4-76f3-4264-b120-6f3085a40a61,请提取文书主题、关键事实、时间节点和待办事项。,主题为项目采购会议；关键事实是完成供应商比选并由法务复核合同；截止时间为10月20日。,document_summary,C:\Users\Lenovo\AppData\Local\Temp\pinggu_evaluation_attachments\f43db0b4-76f3-4264-b120-6f3085a40a61\evaluation_summary.txt,"# 文书要点摘要
+
+**文件名称**：evaluation_summary.txt  
+**文档类型**：会议纪要  
+**文档主题**：项目采购相关会议决定
+
+
+## 一、文档目的
+就项目采购事宜形成会议决定，明确供应商比选及合同复核的工作安排与责任部门。
+
+## 二、核心事实
+- 会议就项目采购事项作出决定。
+- 供应商比选工作由采购部负责。
+- 合同复核工作由法务部负责。
+
+## 三、关键时间
+| 时间节点 | 事项 |
+|---------|------|
+| 2026年10月10日 | 会议召开日期 |
+| 2026年10月20日前 | 采购部完成供应商比选 |
+
+## 四、责任主体
+| 部门 | 职责 |
+|------|------|
+| 采购部 | 完成供应商比选 |
+| 法务部 | 复核合同 |
+
+## 五、金额
+- 材料中未涉及金额信息。
+
+## 六、义务
+- **采购部**：须在2026年10月20日前完成供应商比选。
+- **法务部**：须对合同进行复核（具体完成时限未在材料中载明，待人工核验）。
+
+## 七、风险提示
+- 材料未载明供应商比选的具体标准、范围及合同复核的完成时限，存在执行口径不明确的风险，建议人工核验补充。
+
+## 八、待办事项
+| 序号 | 待办事项 | 责任部门 | 截止时间 |
+|------|---------|---------|---------|
+| 1 | 完成供应商比选 | 采购部 | 2026年10月20日前 |
+| 2 | 复核合同 | 法务部 | 未载明（待人工核验） |
+
+---
+
+**备注**：本摘要仅依据所提供材料内容提炼，未补充材料外信息；标注“待人工核验”处为材料中未明确载明的事项。",4.0,"{""score"": 4, ""reason"": ""模型回答准确提取了主题、关键事实和截止时间，但将截止时间表述为2026年10月20日，与标准答案的10月20日存在年份差异，且未明确将法务复核合同与截止时间关联。""}",0.2414,672,487,1159,provider,0,0,0.9511999960523099,0.0,15487.46260000189,19856.15610000241,13.4,61.8,1175.0,16.0,"{""scope"": ""业务调用，不含Judge"", ""calls"": [{""prompt_tokens"": 157, ""completion_tokens"": 424, ""total_tokens"": 581, ""cache_saved_tokens"": 0}], ""hardware_end"": {""cpu_percent"": 4.0, ""memory_percent"": 61.6, ""gpu_memory_mb"": 1175.0, ""gpu_util_percent"": 13.0}, ""retrieval_scope"": ""Milvus向量查询，含连接；不含embedding及BM25"", ""errors"": []}",1591.0,,2026-10-11T05:56:31.511242+00:00

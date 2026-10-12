@@ -1,0 +1,32 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    TMPDIR=/app/data/tmp \
+    HF_HUB_OFFLINE=1 \
+    TRANSFORMERS_OFFLINE=1
+
+WORKDIR /app
+
+RUN sed -i 's@deb.debian.org@mirrors.cloud.tencent.com@g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 tesseract-ocr tesseract-ocr-chi-sim \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 10001 appuser \
+    && mkdir -p /app/data/tmp \
+    && chown -R appuser:appuser /app/data
+
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-deps 'https://download.pytorch.org/whl/cpu/torch-2.5.1%2Bcpu-cp311-cp311-linux_x86_64.whl' \
+    && pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple filelock typing-extensions networkx jinja2 fsspec sympy \
+    && sed -i '/^torch==/d' requirements.txt \
+    && pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+
+COPY --chown=appuser:appuser backend ./backend
+COPY --chown=appuser:appuser scripts ./scripts
+COPY --chown=appuser:appuser samples ./samples
+
+USER appuser
+EXPOSE 8000
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

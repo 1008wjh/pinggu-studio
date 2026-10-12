@@ -47,3 +47,11 @@ pydantic-settings==2.11.0
 # ===== 测试 =====
 pytest==8.3.4
 pytest-asyncio==0.24.0
+
+openpyxl==3.1.5
+xlrd==2.0.1
+pyarrow==21.0.0
+
+# 会计核算发票图片 OCR（同时需要系统安装 Tesseract 可执行程序）
+pytesseract==0.3.13
+Pillow==10.4.0

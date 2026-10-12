@@ -1,0 +1,1 @@
+import{S as e}from"./StudioAgentPage-B96YG6Xh.js";import{d as t,q as o,o as n}from"./index-lOWBYEdl.js";import"./client-ixyjE2Kh.js";const d=t({__name:"StudioLandView",setup(a){return(r,i)=>(n(),o(e,{kind:"land",title:"文书要点摘要",description:"提取通知、制度、报告、会议纪要和业务材料的关键事实、义务、风险与待办事项。"}))}});export{d as default};

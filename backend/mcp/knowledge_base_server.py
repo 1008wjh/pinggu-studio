@@ -7,7 +7,7 @@ import sys
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP(
-    name="EduAgent-KnowledgeBase",
+    name="Pinggu Studio-KnowledgeBase",
     stateless_http=True,
     json_response=True,
 )
@@ -21,7 +21,7 @@ async def search_knowledge_base(
     top_k: int = 3,
 ) -> list[dict]:
     """
-    Hybrid semantic + keyword search over the EduAgent Milvus knowledge base.
+    Hybrid semantic + keyword search over the Pinggu Studio Milvus knowledge base.
 
     Uses BGE-M3 dual-vector encoding combined with Milvus hybrid_search
     and WeightedRanker fusion, followed by BGE-Reranker cross-encoder reranking.
@@ -83,3 +83,4 @@ if __name__ == "__main__":
     port= 8003
     print(f"Knowledge Base MCP Server → http://localhost:{port}/mcp")
     uvicorn.run(mcp.streamable_http_app(), host="0.0.0.0", port=port)
+

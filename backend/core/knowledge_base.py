@@ -201,8 +201,8 @@ class KnowledgeBaseClient:
     """
     Milvus 知识库客户端（MilvusClient 版）。
 
-    单 Collection 设计（knowledge_domain），按 tenant_id 字段过滤实现多租户隔离。
-    本节实现写入方法，5.6 节追加检索方法。
+    单 Collection 设计（knowledge_domain），按 tenant_id 与知识库 partition 实现隔离。
+    业务层的 IsolatedKnowledgeRAG 还会写入 knowledge_base_id 字段并限定 partition。
 
     单例连接：_client 是类变量，整个进程只创建一次 MilvusClient 连接。
     """

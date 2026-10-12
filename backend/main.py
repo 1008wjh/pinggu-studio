@@ -6,11 +6,10 @@ import sys
 # Windows conda 专用：把 base 的 Library/bin 加入 DLL 搜索路径，
 # 让 _lzma.pyd 能找到 liblzma.dll（非 Windows 跳过，不影响 Linux/Mac）
 if sys.platform == "win32":
-    _conda_base_lib_bin = os.path.normpath(
-        os.path.join(os.path.dirname(sys.executable), "..", "..", "Library", "bin")
-    )
-    if os.path.isdir(_conda_base_lib_bin):
-        os.add_dll_directory(_conda_base_lib_bin)
+    # 使用当前 Python 环境的 DLL，避免把 base Conda 的 OpenSSL 注入 asyncpg。
+    _runtime_lib_bin = os.path.join(sys.prefix, "Library", "bin")
+    if os.path.isdir(_runtime_lib_bin):
+        os.add_dll_directory(_runtime_lib_bin)
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -43,7 +42,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("app.migrations_failed | error=%s", e)   # 迁移失败只告警，不拦启动
 
-    # ② 并行预热三个本地模型（首次加载慢，提前热好，避免首个请求卡顿）
+    # ② 逐个预热本地模型，避免小内存服务器在并行加载时出现峰值内存不足
     import asyncio
     try:
         from backend.core.reranker import BGEReranker            # 重排序模型（5.8）
@@ -51,11 +50,12 @@ async def lifespan(app: FastAPI):
         from backend.core.knowledge_base import BGEMEmbedder      # BGE-M3 嵌入（5.4）
 
         loop = asyncio.get_running_loop()
-        await asyncio.gather(                                    # 三个模型并行加载（各跑在线程池里）
-            loop.run_in_executor(None, BGEReranker.get_instance),
-            loop.run_in_executor(None, QueryClassifier.get_instance),
-            loop.run_in_executor(None, BGEMEmbedder.get_instance),
-        )
+        for load_model in (
+            BGEReranker.get_instance,
+            QueryClassifier.get_instance,
+            BGEMEmbedder.get_instance,
+        ):
+            await loop.run_in_executor(None, load_model)
         logger.info("app.local_models_warmed_up")
     except Exception as e:
         logger.warning("app.local_models_warmup_failed | error=%s", e)  # 预热失败也不拦启动
@@ -73,21 +73,23 @@ async def lifespan(app: FastAPI):
             logger.info("app.shutdown_complete")
 
 app = FastAPI(
-    title="EduAgent API",
-    description="AI 助教智能体系统 API",
+    title="Pinggu Studio API",
+    description="土地评估与财会工作室智能平台 API",
     version="1.0.0",
     docs_url="/docs",                                    # Swagger 文档
     redoc_url="/redoc",                                  # ReDoc 文档
     lifespan=lifespan,                                   # 挂上面的生命周期钩子
 )
 
-# CORS：允许前端开发端口跨域访问（3000/5173/8080）
+# CORS：允许本机前端开发端口跨域访问。
+# 前端可能由 IDE/桌面工具分配随机端口（例如 1214），因此不能只写死少数端口。
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000", "http://localhost:5173", "http://localhost:8080",
         "http://127.0.0.1:3000", "http://127.0.0.1:5173", "http://127.0.0.1:8080",
     ],
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -102,3 +104,4 @@ app.mount("/mcp/web-search", _ws_app)                   # 挂联网搜索 MCP �
 @app.get("/health", tags=["系统"])                       # 健康检查（运维探活用）
 async def health_check():
     return {"status": "ok", "env": settings.app_env}
+

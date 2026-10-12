@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.production.example
 frontend/.env.local
 
 # Python and local runtime files
